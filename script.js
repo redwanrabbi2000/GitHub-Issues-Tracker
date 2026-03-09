@@ -27,3 +27,24 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
         alert('Invalid Credentials! Use admin / admin123');
     }
 });
+// 3. DATA FETCHING
+async function fetchIssues() {
+    toggleLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2000); 
+
+    try {
+        const res = await fetch('https://phi-lab-server.vercel.app/api/v1/lab/issues', {
+            signal: controller.signal
+        });
+        if (!res.ok) throw new Error("API Offline");
+        const json = await res.json();
+        allIssues = json.data || json; 
+    } catch (err) {
+        console.warn("Using local 50-issue fallback data.");
+    } finally {
+        clearTimeout(timeoutId);
+        renderIssues(allIssues);
+        toggleLoading(false);
+    }
+}
